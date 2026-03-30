@@ -1,0 +1,653 @@
+* {
+    margin: 0;
+    padding: 0; 
+    box-sizing: border-box;
+}
+
+:root {
+  --middle-y: 50%;
+}
+
+.loading-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #111;
+  color: #fff;
+  font-size: 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.loading-screen .dot {
+  display: inline-block;
+  margin-left: 2px;
+}
+
+/* achtergrond wrapper */
+.background {
+  position: absolute;
+  top: calc(var(--middle-y) - 145.5px);
+  left: 0;
+  width: 100%;
+  height: 291px;
+  overflow: hidden;
+  z-index: 0;
+  opacity: 0;       /* start onzichtbaar */
+}
+
+/* de loop laat de content zijn eigen breedte bepalen */
+.background-loop {
+  display: flex;
+  align-items: stretch;
+  /* geen vaste width — laat de imgs de breedte bepalen */
+  width: max-content; /* groeit met het aantal images */
+  will-change: transform; /* hint voor performantie tijdens animatie */
+}
+
+/* elk segment heeft vaste pixelbreedte (jouw JPG is 450px breed) */
+.background-loop img {
+  flex: 0 0 450px;   /* geen schalen, steeds exact 450px breed */
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.resize-hint {
+  position: fixed;
+  top: 12px;
+  right: 12px;
+  font-family: "Great Vibes", cursive;
+  font-size: 32px;
+  font-weight: bold;
+  color: white;
+  opacity: 0.8;
+  background: rgba(0,0,0,0.6);
+  box-shadow:
+              0 4px 10px rgba(0,0,0,0.6),
+              inset 0 0 3px 3px rgb(93, 93, 93);
+  padding: 7.5px 12px;
+  border-radius: 8px;
+  border-bottom-left-radius: 24px;
+  z-index: 9999;
+  backdrop-filter: blur(4px);
+}
+
+#scene_wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#train #scene_wrapper {
+  position: relative;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+}
+
+#train #scene_wrapper::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+
+  background-image: url("train_images/perkament.jpg");
+  background-repeat: repeat;
+  background-size: cover;
+  box-shadow: inset 0 0 80px rgba(0,0,0,0.35);
+  z-index: 0;
+}
+
+#train #scene_wrapper::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+
+  background-image: url("train_images/frame.png");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100% 100%;
+
+  pointer-events: none;
+  z-index: 3;
+}
+
+/* === GENERAL STYLING === */
+.train {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  margin: 0px auto;
+  width: fit-content;
+  position: absolute;
+  top: calc(var(--middle-y) - 58px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+}
+
+/* Alle containers zijn relative */
+.locomotief,
+.wagon1,
+.wagon2 {
+  position: relative;
+  width: 220px;
+  height: 160px;
+}
+
+/* Alle onderdelen zijn absolute */
+.loco,
+.wagon {
+  position: absolute;
+}
+
+.wheel-rotator {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+
+  transform-origin: center center; /* 🔥 cruciaal */
+}
+
+.wheel {
+  position: absolute;
+  width: 50px;       /* standaard wiel */
+  height: 50px;
+  bottom: 0;
+}
+
+.wheel-inner {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  background: #602000;
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.wheel-outer {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border: 5px solid #602000;
+  border-radius: 50%;
+}
+
+.wheel-inner,
+.wheel-outer {
+  z-index: -1;
+}
+
+.spoke {
+  position: absolute;
+  width: 4px;
+  height: 44%;                /* lengte van de spaak */
+  background: none;
+
+  /* centraal op de as */
+  top: 28%;                    
+  left: 50%;                  
+  transform-origin: center bottom; /* rotatiepunt = as */
+}
+
+/* Rotaties voor 8 spaken */
+.spoke_1 .spoke-inner { transform: translateX(-50%) translateY(-50%) rotate(0deg); }
+.spoke_2 .spoke-inner { transform: translateX(-50%) translateY(-50%) rotate(45deg); }
+.spoke_3 .spoke-inner { transform: translateX(-50%) translateY(-50%) rotate(90deg); }
+.spoke_4 .spoke-inner { transform: translateX(-50%) translateY(-50%) rotate(135deg); }
+.spoke_5 .spoke-inner { transform: translateX(-50%) translateY(-50%) rotate(180deg); }
+.spoke_6 .spoke-inner { transform: translateX(-50%) translateY(-50%) rotate(225deg); }
+.spoke_7 .spoke-inner { transform: translateX(-50%) translateY(-50%) rotate(270deg); }
+.spoke_8 .spoke-inner { transform: translateX(-50%) translateY(-50%) rotate(315deg); }
+
+.spoke-inner {
+  width: 100%;
+  height: 100%;
+  transform-origin: center bottom;
+  transform: translateX(-50%) translateY(-50%) rotate(0deg); /* correct centreren */
+  background: #222;
+}
+
+
+
+/* ======================================================
+   === LOCOMOTIEF ===
+   ====================================================== */
+
+/* Achterste body */
+.loco_body_1 {
+  width: 150px;
+  height: 75px;
+  background: #c44;
+  bottom: 40px;
+  left: 0;
+  border-radius: 10px;
+}
+
+/* Voorste body (hoger) */
+.loco_body_2 {
+  width: 100px;
+  height: 120px;
+  background: #d55;
+  bottom: 40px;
+  right: 0;
+  border-radius: 10px 10px 5px 5px;
+}
+
+/* Schuin front */
+.loco_front {
+  width: 40px;
+  height: 40px;
+  background: #333;
+  bottom: 35px;
+  right: 200px;
+  transform: skewX(-25deg);
+  border-radius: 5px;
+}
+
+/* Schoorsteen */
+.loco_chimney {
+  width: 25px;
+  height: 50px;
+  background: #333;
+  bottom: 109px;
+  left: 25px;
+  border-radius: 5px;
+}
+
+.loco_smoke {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  top: -20px;        /* net boven de schoorsteen */
+  /* left: 30px;        passend bij jouw schoorsteen */
+  background: rgb(96, 96, 96) ;
+  opacity: 1 ;
+}
+
+.smoke2 { width: 15px; height: 15px; left: 15px; }
+.smoke3 { width: 18px; height: 18px; left: 5px; }
+
+/* Raam */
+.loco_window {
+  width: 60px;
+  height: 40px;
+  background: #eef;
+  top: 26px;
+  left: 145px;
+  border-radius: 5px;
+  border: 3px solid #99c;
+}
+
+/* MEN CONTAINER */
+.men {
+  position: absolute;   /* zodat hij in de locomotief geplaatst kan worden */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 20px;          /* totale breedte van machinist */
+}
+
+/* HOOFD */
+.m_head {
+  width: 20px;          /* hoofd diameter */
+  height: 20px;
+  border-radius: 50%;   /* rond hoofd */
+  background-color: #333; /* kleur van hoofd, eventueel licht huidkleur */
+  margin-right: 4px;
+  z-index: 2;
+}
+
+/* ROMP */
+.m_body {
+  width: 7px;           /* smalle romp */
+  height: 23.5px;         /* hoogte romp */
+  background-color: #0d006f; /*zelfde kleur als hoofd of kledingkleur*/
+  margin-top: 2px;      /* kleine afstand tussen hoofd en romp */
+}
+
+.loco.men {
+  bottom: 122px;         /* hoogte vanaf onderkant van de locomotief, pas aan naar wens */
+  left: 175px;           /* horizontale positie achter het raam, pas aan */
+}
+
+/* Dak */
+.loco_roof {
+  width: 120px;
+  height: 7px;
+  background: #333;
+  top: 44.5px;
+  left: 2px;
+  border-radius: 6px;
+  border-top-left-radius: 10px;
+}
+
+/* Wielkoppeling vooraan */
+
+.coupler-wrapper {
+  position: absolute;
+  top: 25px;          /* begin bij center van spoke */
+  left: 5%;
+  /* transform: translateX(-50%); */
+  transform-origin: left center; /* 🔥 pivot op spoke punt */
+  z-index: 12;
+}
+.loco_wheel_coupler {
+  position: absolute;
+  width: 62px;
+  height: 5px;
+  background: #333;
+  border-radius: 3px;
+  transform-origin: left center;
+}
+
+/* Koppeling */
+.loco_coupler {
+  width: 45px;
+  height: 4px;
+  background: #222;
+  bottom: 42px;
+  right: -40px;
+  border-radius: 4px;
+  z-index: -1;
+}
+
+.loco_wheel_1 { left: 20px; }
+.loco_wheel_2 { left: 80px; }
+.loco_wheel_3 { left: 140px; }
+
+.loco_wheel_3 {
+  width: 70px;
+  height: 70px;
+}
+
+.big_wheel-outer {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border: 6px solid #602000;
+  border-radius: 50%;
+}
+
+.big_wheel-inner {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  background: #602000;
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+}
+
+.big_spoke_1,
+.big_spoke_2,
+.big_spoke_3,
+.big_spoke_4,
+.big_spoke_5,
+.big_spoke_6,
+.big_spoke_7,
+.big_spoke_8 {
+  position: absolute;
+  width: 5px;        
+  height: 44%;       
+  background: none;
+
+  top: 28%;
+  left: 50%;
+  transform-origin: center bottom;
+}
+
+.big_spoke_1 .spoke-inner,
+.big_spoke_2 .spoke-inner,
+.big_spoke_3 .spoke-inner,
+.big_spoke_4 .spoke-inner,
+.big_spoke_5 .spoke-inner,
+.big_spoke_6 .spoke-inner,
+.big_spoke_7 .spoke-inner,
+.big_spoke_8 .spoke-inner {
+  width: 100%;
+  height: 100%;
+  background: #222;
+
+  transform-origin: center bottom;
+  transform: translateX(-50%) translateY(-50%) rotate(0deg);
+}
+
+/* Rotaties voor 8 spaken (of 9 als je extra gebruikt) */
+.big_spoke_1 .spoke-inner { transform: translateX(-50%) translateY(-50%) rotate(0deg); }
+.big_spoke_2 .spoke-inner { transform: translateX(-50%) translateY(-50%) rotate(45deg); }
+.big_spoke_3 .spoke-inner { transform: translateX(-50%) translateY(-50%) rotate(90deg); }
+.big_spoke_4 .spoke-inner { transform: translateX(-50%) translateY(-50%) rotate(135deg); }
+.big_spoke_5 .spoke-inner { transform: translateX(-50%) translateY(-50%) rotate(180deg); }
+.big_spoke_6 .spoke-inner { transform: translateX(-50%) translateY(-50%) rotate(225deg); }
+.big_spoke_7 .spoke-inner { transform: translateX(-50%) translateY(-50%) rotate(270deg); }
+.big_spoke_8 .spoke-inner { transform: translateX(-50%) translateY(-50%) rotate(315deg); }
+
+
+
+/* ======================================================
+   === WAGON 1 ===
+   ====================================================== */
+
+.wagon1_body {
+  width: 180px;
+  height: 90px;
+  background: #66a;
+  bottom: 40px;
+  left: 20px;
+  border-radius: 10px;
+}
+
+.wagon1_window {
+  width: 50px;
+  height: 40px;
+  background: #eef;
+  top: 55px;
+  left: 50px;
+  border-radius: 5px;
+  border: 3px solid #aac;
+}
+
+.wagon1 .men {
+  bottom: -55px;         /* hoogte vanaf onderkant van de locomotief, pas aan naar wens */
+  left: 72px;           /* horizontale positie achter het raam, pas aan */
+}
+
+.wagon1.m_head {
+  margin-top: 11px;
+}
+
+.wagon1.m_body {
+  margin-bottom: 5px;
+  margin-top: -2px;
+  height: 8px;
+  background-color: green;
+}
+
+.wagon1_window_2 {
+  width: 50px;
+  height: 40px;
+  background: #eef;
+  top: 55px;
+  left: 125px;
+  border-radius: 5px;
+  border: 3px solid #aac;
+}
+
+.wagon1.window2.men {
+  bottom: -55px;         /* hoogte vanaf onderkant van de locomotief, pas aan naar wens */
+  left: 148px;           /* horizontale positie achter het raam, pas aan */
+}
+
+.wagon1.m_head {
+  margin-top: 11px;
+}
+
+.wagon1 .window2 .m_body {
+  margin-bottom: 5px;
+  margin-top: -2px;
+  height: 8px;
+  background-color: rgb(160, 0, 0);
+}
+
+/* Koppeling achter */
+.wagon_coupler {
+  width: 45px;
+  height: 4px;
+  background: #222;
+  bottom: 42px;
+  right: -20px;
+  border-radius: 4px;
+  z-index: -1;
+}
+
+.wagon1_wheel_1 { left: 40px; }
+.wagon1_wheel_2 { left: 135px; }
+
+
+/* ======================================================
+   === WAGON 2 ===
+   ====================================================== */
+
+.wagon2_body {
+  width: 180px;
+  height: 90px;
+  background: #5a8;
+  bottom: 40px;
+  border-radius: 10px;
+}
+
+.wagon2_window {
+  width: 50px;
+  height: 40px;
+  background: #eef;
+  top: 55px;
+  left: 30px;
+  border-radius: 5px;
+  border: 3px solid #aac;
+}
+
+.wagon2 .men {
+  bottom: -55px;         /* hoogte vanaf onderkant van de locomotief, pas aan naar wens */
+  left: 54px;           /* horizontale positie achter het raam, pas aan */
+}
+
+.wagon2.m_head {
+  margin-top: 11px;
+}
+
+.wagon2.m_body {
+  margin-bottom: 5px;
+  margin-top: -2px;
+  height: 8px;
+  background-color: rgb(0, 32, 214);
+}
+
+.wagon2_window_2 {
+  width: 50px;
+  height: 40px;
+  background: #eef;
+  top: 55px;
+  left: 105px;
+  border-radius: 5px;
+  border: 3px solid #aac;
+}
+
+.wagon2.window2.men {
+  bottom: -55px;         /* hoogte vanaf onderkant van de locomotief, pas aan naar wens */
+  left: 130px;           /* horizontale positie achter het raam, pas aan */
+}
+
+.wagon2.window2.m_head {
+  margin-top: 11px;
+}
+
+.wagon2 .window2 .m_body {
+  margin-bottom: 5px;
+  margin-top: -2px;
+  height: 8px;
+  background-color: rgb(170, 170, 0);
+}
+
+.wagon2_wheel_1 { left: 20px; }
+.wagon2_wheel_2 { left: 115px; }
+
+
+/* --- RAILS CONTAINER --- */
+.rails {
+    position: absolute;
+    top: calc(var(--middle-y) + 141px);
+    transform: translateY(-50%);
+    left: 0;
+    width: 100%;
+    height: 90px;         /* totale hoogte van rails + sleepers */
+    overflow: hidden;
+    z-index: 1;
+}
+
+.rails-loop {
+  display: flex;
+  width: 7200px; /* totale breedte rails */
+}
+
+.segment {
+  display: flex;
+  position: relative;
+  gap: 10px;
+  padding-left: 10px;
+  box-sizing: border-box;
+  width: auto; /* laat flex-items zelf de breedte bepalen */
+}
+
+.sleeper {
+    width: 40px;
+    height: 12px;
+    background: #7a4e21;
+    border: 3px solid #5c3917;
+    border-radius: 3px;
+    margin-right: 10px;
+}
+
+.rail {
+    position: absolute;
+    left: 0;
+    width: 7200px; /* match rails-loop! */
+    height: 6px;
+    background: #2b2b2b;
+    border-radius: 3px;
+}
+
+.signature {
+  opacity: 0;
+  position: absolute;
+  bottom: 10%;
+  right: 12.5%;
+  width: 120px;
+  z-index: 3;
+}
+
+.signature path {
+  fill: grey;       /* 👈 toevoegen */
+  fill-opacity: 0;     /* 👈 start onzichtbaar */ 
+  stroke: #4a2e1a;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
