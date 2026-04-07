@@ -89,10 +89,10 @@ setTimeout(() => {
 
 function startWheelRotation() {
 
-  console.log("=== startWheelRotation ===");
+  /*console.log("=== startWheelRotation ===");
   console.log("Tweens wheel-rotator BEFORE start:", gsap.getTweensOf(".wheel-rotator"));
   console.log("Tweens wheel-rotator-big BEFORE start:", gsap.getTweensOf(".wheel-rotator-big"));
-  console.log("Tweens coupler-wrapper BEFORE start:", gsap.getTweensOf(".coupler-wrapper"));
+  console.log("Tweens coupler-wrapper BEFORE start:", gsap.getTweensOf(".coupler-wrapper"));*/
 
   // stop oude rotaties
   gsap.killTweensOf(".wheel-rotator");
@@ -135,9 +135,9 @@ function startWheelRotation() {
 
   });
 
-  console.log("Tweens wheel-rotator AFTER start:", gsap.getTweensOf(".wheel-rotator"));
+  /*console.log("Tweens wheel-rotator AFTER start:", gsap.getTweensOf(".wheel-rotator"));
   console.log("Tweens wheel-rotator-big AFTER start:", gsap.getTweensOf(".wheel-rotator-big"));
-  console.log("Tweens coupler-wrapper AFTER start:", gsap.getTweensOf(".coupler-wrapper"));
+  console.log("Tweens coupler-wrapper AFTER start:", gsap.getTweensOf(".coupler-wrapper"));*/
 }
 
 // Gebruik onChange zodat animatie telkens afgaat bij verandering
@@ -178,7 +178,7 @@ function assembleTrain() {
       // 👉 alleen op kleine schermen
       if (window.innerWidth < 1250) {
         document.querySelectorAll(".wheel").forEach(w => {
-          console.log(w.className, "rotation =", gsap.getProperty(w, "rotation"));
+          /*console.log(w.className, "rotation =", gsap.getProperty(w, "rotation"));*/
         });
         gsap.set(".wheel-rotator, .wheel-rotator-big, .coupler-wrapper", {
           rotation: 0
@@ -193,18 +193,18 @@ function assembleTrain() {
 }
 
 function explodeParts() {
-  console.log("=== explodeParts start ===");
+  /*console.log("=== explodeParts start ===");
   console.log("Tweens wheel-rotator BEFORE kill:", gsap.getTweensOf(".wheel-rotator"));
   console.log("Tweens wheel-rotator-big BEFORE kill:", gsap.getTweensOf(".wheel-rotator-big"));
-  console.log("Tweens coupler BEFORE kill:", gsap.getTweensOf(".loco_wheel_coupler"));
+  console.log("Tweens coupler BEFORE kill:", gsap.getTweensOf(".loco_wheel_coupler"));*/
 
   gsap.killTweensOf(".wheel-rotator");
   gsap.killTweensOf(".wheel-rotator-big");
   gsap.killTweensOf(".coupler-wrapper");
 
-  console.log("Tweens wheel-rotator AFTER kill:", gsap.getTweensOf(".wheel-rotator"));
+  /*console.log("Tweens wheel-rotator AFTER kill:", gsap.getTweensOf(".wheel-rotator"));
   console.log("Tweens wheel-rotator-big AFTER kill:", gsap.getTweensOf(".wheel-rotator-big"));
-  console.log("Tweens coupler AFTER kill:", gsap.getTweensOf(".loco_wheel_coupler"));
+  console.log("Tweens coupler AFTER kill:", gsap.getTweensOf(".loco_wheel_coupler"));*/
   
   parts.forEach(part => {
     const randomX = gsap.utils.random(-180, 180);
